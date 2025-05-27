@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Trash2, Edit } from "react-feather";
 
-const API_URL = "http://localhost/sewa_alat_camping/Backend/api/DataBarang.php";
-
 const DataBarang = () => {
   const [barang, setBarang] = useState([]);
   const [form, setForm] = useState({ nama_barang: "", stok: "", harga_per_hari: "", kategori: "" });
@@ -18,7 +16,7 @@ const DataBarang = () => {
 
   const fetchBarang = async () => {
     try {
-      const response = await axios.get(API_URL);
+      const response = await axios.get(`${import.meta.env.VITE_URL_API}/barang`);
       setBarang(response.data);
       extractKategori(response.data);
     } catch (error) {
@@ -40,7 +38,7 @@ const DataBarang = () => {
     if (editMode) {
       // ✅ Update Data Barang
       try {
-        await axios.put(API_URL, { id_barang: editId, ...form });
+        await axios.put(`${import.meta.env.VITE_URL_API}/barang`, { id_barang: editId, ...form });
         setEditMode(false);
         setEditId(null);
       } catch (error) {
@@ -49,7 +47,7 @@ const DataBarang = () => {
     } else {
       // ✅ Tambah Data Barang
       try {
-        await axios.post(API_URL, form);
+        await axios.post(`${import.meta.env.VITE_URL_API}/barang`, form);
       } catch (error) {
         console.error("Error adding barang:", error);
       }
@@ -67,7 +65,7 @@ const DataBarang = () => {
 
   const handleHapus = async (id_barang) => {
     try {
-      await axios.delete(API_URL, { data: { id_barang } });
+      await axios.delete(`${import.meta.env.VITE_URL_API}/barang`, { data: { id_barang } });
       fetchBarang();
     } catch (error) {
       console.error("Error deleting barang:", error);

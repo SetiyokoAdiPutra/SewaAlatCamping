@@ -13,7 +13,7 @@ const Login = () => {
     setError("");
 
     try {
-      const response = await fetch("http://localhost/sewa_alat_camping/Backend/api/Login.php", {
+      const response = await fetch(`${import.meta.env.VITE_URL_API}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

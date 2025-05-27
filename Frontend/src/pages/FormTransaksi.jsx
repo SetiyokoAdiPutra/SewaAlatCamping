@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const FormTransaksi = () => {
   const location = useLocation();
@@ -9,10 +10,11 @@ const FormTransaksi = () => {
   const [tanggalSewa, setTanggalSewa] = useState("");
   const [tanggalKembali, setTanggalKembali] = useState("");
   const selectedBarang = location.state?.selectedBarang || [];
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     axios
-      .get("http://localhost/sewa_alat_camping/Backend/api/DataPelanggan.php")
+      .get(`${import.meta.env.VITE_URL_API}/pelanggan`)
       .then((response) => {
         setPelangganList(response.data);
       })
@@ -41,7 +43,6 @@ const FormTransaksi = () => {
     }).format(angka);
   };
 
-  // FUNGSI UNTUK SIMPAN TRANSAKSI
   const handleSimpanTransaksi = async () => {
     if (!selectedPelanggan || !tanggalSewa || !tanggalKembali || selectedBarang.length === 0) {
       alert("Harap lengkapi semua data terlebih dahulu.");
@@ -53,15 +54,15 @@ const FormTransaksi = () => {
       tanggal_sewa: tanggalSewa,
       tanggal_kembali: tanggalKembali,
       total_harga: totalHarga,
-      items: selectedBarang.map(item => ({
+      barang: selectedBarang.map(item => ({
         id_barang: item.id_barang,
-        jumlah: item.stok,
+        jumlah: item.jumlah, 
         subtotal: item.subtotal
       }))
     };
 
     try {
-      const res = await fetch("http://localhost/sewa_alat_camping/Backend/api/SimpanTransaksi.php", {
+      const res = await fetch(`${import.meta.env.VITE_URL_API}/transaksi`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(transaksiData)
@@ -70,7 +71,7 @@ const FormTransaksi = () => {
       const result = await res.json();
       if (result.success) {
         alert("Transaksi berhasil disimpan!");
-        // Reset jika perlu
+        navigate(`/Struk/${result.id_transaksi}`);
       } else {
         alert("Gagal menyimpan transaksi: " + result.message);
       }

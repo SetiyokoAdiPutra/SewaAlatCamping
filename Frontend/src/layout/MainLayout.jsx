@@ -5,7 +5,7 @@ const AdminLayout = () => {
   return (
     <div className="flex min-h-screen">
       {/* Sidebar tetap di kiri */}
-      <div className="w-64 min-h-screen bg-white shadow-md">
+      <div className="w-64 min-h-screen bg-white shadow-md print:hidden">
         <Sidebar />
       </div>
 

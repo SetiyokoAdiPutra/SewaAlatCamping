@@ -1,11 +1,15 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 session_start();
 header("Access-Control-Allow-Origin: http://localhost:5173"); // Sesuaikan dengan URL frontend
 header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Credentials: true");
 
-require_once "../config/database.php"; // Pastikan ini file koneksi ke database
+require_once __DIR__ . '/../config/database.php';
 
 $data = json_decode(file_get_contents("php://input"), true);
 

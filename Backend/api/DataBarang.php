@@ -1,46 +1,49 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 // Header untuk CORS dan pengaturan konten JSON
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 header("Content-Type: application/json");
 
-include "../config/database.php";
+include __DIR__ . '/../config/database.php';
 
-// Fungsi untuk format harga menjadi format Rupiah
 function formatRupiah($angka) {
     return number_format($angka, 0, ',', '.');
 }
 
-
-
-$method = $_SERVER['REQUEST_METHOD']; // Menentukan metode HTTP yang digunakan
+$method = $_SERVER['REQUEST_METHOD']; 
 
 switch ($method) {
     case 'GET':
-        // Jika ada kategori barang yang dikirim
         if (isset($_GET['kategori'])) {
             $kategori = $_GET['kategori'];
             $query = "SELECT * FROM barang WHERE kategori = ?";
             $stmt = $conn->prepare($query);
+            if (!$stmt) {
+                die(json_encode(["error" => "Prepare gagal: " . $conn->error]));
+            }
             $stmt->bind_param("s", $kategori);
         } else {
-            // Ambil semua barang
             $query = "SELECT * FROM barang";
             $stmt = $conn->prepare($query);
+            if (!$stmt) {
+                die(json_encode(["error" => "Prepare gagal: " . $conn->error]));
+            }
         }
-        $stmt->execute(); // Menjalankan query
-        $result = $stmt->get_result(); // Mendapatkan hasil query
+
+        $stmt->execute();
+        $result = $stmt->get_result();
+
         $barang = [];
-        
-        // Proses data barang
         while ($row = $result->fetch_assoc()) {
-            // Format harga sesuai dengan yang diinginkan di frontend
-            $row['harga'] = formatRupiah($row['harga_per_hari']); 
-            $barang[] = $row; // Menambahkan data barang ke array
+            $row['harga'] = formatRupiah($row['harga_per_hari']);
+            $barang[] = $row;
         }
-        
-        // Mengirimkan data barang dalam format JSON
+
         echo json_encode($barang);
         break;
     
@@ -50,6 +53,9 @@ switch ($method) {
         if (isset($data['nama_barang'], $data['stok'], $data['harga_per_hari'], $data['kategori'])) {
             $query = "INSERT INTO barang (nama_barang, stok, harga_per_hari, kategori) VALUES (?, ?, ?, ?)";
             $stmt = $conn->prepare($query);
+            if (!$stmt) {
+                die(json_encode(["error" => "Prepare gagal: " . $conn->error]));
+            }
             $stmt->bind_param("siss", $data['nama_barang'], $data['stok'], $data['harga_per_hari'], $data['kategori']);
             $stmt->execute();
             echo json_encode(["message" => "Barang berhasil ditambahkan"]);
@@ -64,6 +70,9 @@ switch ($method) {
         if (isset($data['id_barang'], $data['nama_barang'], $data['stok'], $data['harga_per_hari'], $data['kategori'])) {
             $query = "UPDATE barang SET nama_barang = ?, stok = ?, harga_per_hari = ?, kategori = ? WHERE id_barang = ?";
             $stmt = $conn->prepare($query);
+            if (!$stmt) {
+                die(json_encode(["error" => "Prepare gagal: " . $conn->error]));
+            }
             $stmt->bind_param("sissi", $data['nama_barang'], $data['stok'], $data['harga_per_hari'], $data['kategori'], $data['id_barang']);
             $stmt->execute();
             echo json_encode(["message" => "Barang berhasil diperbarui"]);
@@ -78,6 +87,9 @@ switch ($method) {
         if (isset($data['id_barang'])) {
             $query = "DELETE FROM barang WHERE id_barang = ?";
             $stmt = $conn->prepare($query);
+            if (!$stmt) {
+                die(json_encode(["error" => "Prepare gagal: " . $conn->error]));
+            }
             $stmt->bind_param("i", $data['id_barang']);
             $stmt->execute();
             echo json_encode(["message" => "Barang berhasil dihapus"]);

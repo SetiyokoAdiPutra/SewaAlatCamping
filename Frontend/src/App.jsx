@@ -7,6 +7,7 @@ import DataBarang from "./pages/DataBarang"
 import Transaksi from "./pages/Transaksi"
 import PilihBarang from "./pages/Pilihbarang";
 import FormTransaksi from "./pages/FormTransaksi"
+import StrukTransaksi from "./pages/StrukTransaksi";
 
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
           <Route path="/Transaksi" element={<Transaksi />} />
           <Route path="/PilihBarang" element={<PilihBarang />} />
           <Route path="/FormTransaksi" element={<FormTransaksi />} />
+          <Route path="/Struk/:id" element={<StrukTransaksi />} />
         </Route>
       </Routes>
     </Router>

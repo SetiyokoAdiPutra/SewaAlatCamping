@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom"; // Untuk navigasi
 
-const API_BARANG_URL = "http://localhost/sewa_alat_camping/Backend/api/DataBarang.php";
-
 // Fungsi untuk format harga menjadi format IDR (Rupiah)
 const formatRupiah = (angka) => {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(angka);
@@ -22,7 +20,7 @@ const PilihBarang = () => {
 
   const fetchBarang = async () => {
     try {
-      const response = await axios.get(API_BARANG_URL);
+      const response = await axios.get(`${import.meta.env.VITE_URL_API}/barang`);
       setBarang(response.data); // Set data barang ke state
     } catch (error) {
       console.error("Error fetching barang:", error);
@@ -39,36 +37,43 @@ const PilihBarang = () => {
 
   const handleAddBarang = (barangId, namaBarang, stok, harga) => {
     const qty = quantity[barangId] ? parseInt(quantity[barangId]) : 0;
-    
+
     if (qty > 0 && qty <= stok) {
-      // Mengecek apakah barang sudah ada dalam daftar
-      const existingBarang = selectedBarang.find(item => item.barangId === barangId);
+      const subtotal = harga * qty;
+
+      const existingBarang = selectedBarang.find(item => item.id_barang === barangId);
 
       if (existingBarang) {
-        // Jika barang sudah ada, perbarui jumlah dan subtotal-nya
         const updatedBarang = selectedBarang.map(item =>
-          item.barangId === barangId
-            ? { ...item, stok: qty, subtotal: harga * qty }
+          item.id_barang === barangId
+            ? { ...item, jumlah: qty, subtotal }
             : item
         );
         setSelectedBarang(updatedBarang);
       } else {
-        // Jika barang belum ada, tambahkan baru
-        setSelectedBarang((prev) => [
+        setSelectedBarang(prev => [
           ...prev,
-          { barangId, namaBarang, stok: qty, harga, subtotal: harga * qty }
+          {
+            id_barang: barangId,
+            namaBarang,
+            jumlah: qty,
+            harga,
+            subtotal
+          }
         ]);
       }
 
-      // Reset quantity input setelah barang ditambahkan
-      setQuantity((prev) => ({ ...prev, [barangId]: "" }));
+      // Reset input jumlah
+      setQuantity(prev => ({ ...prev, [barangId]: "" }));
     } else {
       alert("Jumlah yang dimasukkan tidak valid.");
     }
   };
 
   const handleLanjutKeTransaksi = () => {
-    // Setelah barang dipilih, arahkan ke halaman form transaksi
+    if (selectedBarang.length === 0) {
+      return alert("Pilih minimal 1 barang terlebih dahulu.");
+    }
     navigate("/FormTransaksi", { state: { selectedBarang } });
   };
 
@@ -132,8 +137,8 @@ const PilihBarang = () => {
         <ul>
           {selectedBarang.length > 0 ? (
             selectedBarang.map((item, index) => (
-              <li key={index} className="border-b py-2">
-                {item.namaBarang} - {item.stok} x {formatRupiah(item.harga)} = {formatRupiah(item.subtotal)}
+              <li key={index}>
+                {item.namaBarang} - {item.jumlah} x {formatRupiah(item.harga)} = {formatRupiah(item.subtotal)}
               </li>
             ))
           ) : (

@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Users, Trash2, Edit } from "react-feather";
 
-const API_URL = "http://localhost/sewa_alat_camping/Backend/api/DataPelanggan.php";
-
 const DataPelanggan = () => {
   const [pelanggan, setPelanggan] = useState([]);
   const [form, setForm] = useState({ id_pelanggan: null, nama: "", email: "", no_hp: "", alamat: "" });
@@ -14,7 +12,7 @@ const DataPelanggan = () => {
 
   const fetchPelanggan = async () => {
     try {
-      const response = await axios.get(API_URL);
+      const response = await axios.get(`${import.meta.env.VITE_URL_API}/pelanggan`);
       setPelanggan(response.data);
     } catch (error) {
       console.error("Error fetching pelanggan:", error);
@@ -29,9 +27,9 @@ const DataPelanggan = () => {
     e.preventDefault();
     try {
       if (form.id_pelanggan) {
-        await axios.put(API_URL, form); // Update data jika id_pelanggan ada
+        await axios.put(`${import.meta.env.VITE_URL_API}/pelanggan`, form); // Update data jika id_pelanggan ada
       } else {
-        await axios.post(API_URL, form); // Tambah data baru jika id_pelanggan kosong
+        await axios.post(`${import.meta.env.VITE_URL_API}/pelanggan`, form); // Tambah data baru jika id_pelanggan kosong
       }
       fetchPelanggan();
       setForm({ id_pelanggan: null, nama: "", email: "", no_hp: "", alamat: "" });
@@ -42,7 +40,7 @@ const DataPelanggan = () => {
 
   const handleHapus = async (id_pelanggan) => {
     try {
-      await axios.delete(API_URL, { data: { id_pelanggan } });
+      await axios.delete(`${import.meta.env.VITE_URL_API}/pelanggan`, { data: { id_pelanggan } });
       fetchPelanggan();
     } catch (error) {
       console.error("Error deleting pelanggan:", error);
